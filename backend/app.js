@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-// const sanitize = require ('express-mongo-sanitize');  // To prevent injection attacks
-require('dotenv').config();  // To use environment vars (secures sensible data such as the DB connection string)
+require('dotenv').config();  
 
 const cors = require('cors');
 const path = require('path');
