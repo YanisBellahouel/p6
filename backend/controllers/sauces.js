@@ -81,6 +81,9 @@ exports.modifySauce = (req, res, next) => {
       if (sauceObject.userId != req.auth.userId) {
         res.status(401).json({ message: "Not authorized" });
       } else {
+        const filename = sauceObject.imageUrl.split("/images/")[1];
+        fs.unlink(`images/${filename}`, () => {
+          modelsSauces
         modelsSauces
           .updateOne(
             { _id: req.params.id },
@@ -88,6 +91,7 @@ exports.modifySauce = (req, res, next) => {
           )
           .then(() => res.status(200).json({ message: "Objet modifié!" }))
           .catch((error) => res.status(401).json({ error }));
+        })
       }
     })
     .catch((error) => {
