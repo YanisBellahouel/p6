@@ -64,12 +64,10 @@ exports.deleteSauce = (req, res, next) => {
 
 exports.modifySauce = (req, res, next) => {
   // on regarde si il y a deja une image
-  const sauceObject = req.file
-    ? {
+  const sauceObject = req.file ?
+   {
         ...JSON.parse(req.body.sauce),
-        imageUrl: `${req.protocol}://${req.get("host")}/images/${
-          req.file.filename
-        }`,
+        imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
       }
     : { ...req.body };
   // on supprime _userId pour la sécuriter
@@ -81,9 +79,6 @@ exports.modifySauce = (req, res, next) => {
       if (sauceObject.userId != req.auth.userId) {
         res.status(401).json({ message: "Not authorized" });
       } else {
-        const filename = sauceObject.imageUrl.split("/images/")[1];
-        fs.unlink(`images/${filename}`, () => {
-          modelsSauces
         modelsSauces
           .updateOne(
             { _id: req.params.id },
@@ -91,12 +86,38 @@ exports.modifySauce = (req, res, next) => {
           )
           .then(() => res.status(200).json({ message: "Objet modifié!" }))
           .catch((error) => res.status(401).json({ error }));
-        })
+        
       }
     })
     .catch((error) => {
       res.status(400).json({ error });
     });
+};
+
+exports.modifySauce = (req, res, next) => {
+  modelsSauces.findOne({ _id: req.params.id }).then((sauce) => {
+    const filename = sauce.imageUrl.split("/images/")[1];
+    fs.unlink(`images/${filename}`, () => {
+      const sauceObject = req.file
+        ? {
+            ...JSON.parse(req.body.sauce),
+            imageUrl: `${req.protocol}://${req.get("host")}/images/${
+              req.file.filename
+            }`,
+          }
+        : { ...req.body };
+        if (sauceObject.userId != req.auth.userId) {
+          res.status(401).json({ message: "Not authorized" });
+      } else {
+      modelsSauces.updateOne(
+        { _id: req.params.id },
+        { ...sauceObject, _id: req.params.id }
+      )
+        .then(() => res.status(200).json({ message: "Sauce modifiée !" }))
+        .catch((error) => res.status(400).json({ error }));
+      }
+    });
+  });
 };
 
 exports.likeOrDislike = (req, res, next) => {
