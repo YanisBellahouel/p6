@@ -62,37 +62,7 @@ exports.deleteSauce = (req, res, next) => {
     });
 };
 
-exports.modifySauce = (req, res, next) => {
-  // on regarde si il y a deja une image
-  const sauceObject = req.file ?
-   {
-        ...JSON.parse(req.body.sauce),
-        imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
-      }
-    : { ...req.body };
-  // on supprime _userId pour la sécuriter
-  delete sauceObject._userId;
-  modelsSauces
-    .findOne({ _id: req.params.id })
-    .then(() => {
-      // on vérifie si c'est le bon utilisateur
-      if (sauceObject.userId != req.auth.userId) {
-        res.status(401).json({ message: "Not authorized" });
-      } else {
-        modelsSauces
-          .updateOne(
-            { _id: req.params.id },
-            { ...sauceObject, _id: req.params.id }
-          )
-          .then(() => res.status(200).json({ message: "Objet modifié!" }))
-          .catch((error) => res.status(401).json({ error }));
-        
-      }
-    })
-    .catch((error) => {
-      res.status(400).json({ error });
-    });
-};
+
 
 exports.modifySauce = (req, res, next) => {
   modelsSauces.findOne({ _id: req.params.id }).then((sauce) => {
